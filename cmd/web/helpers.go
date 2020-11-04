@@ -1,69 +1,43 @@
 package main
 
 import (
-	"bytes"
+	"errors"
 	"fmt"
-	"net/http"
-	"runtime/debug"
-	"time"
-
-	"github.com/justinas/nosurf"
+	"math"
+	"regexp"
 )
 
-func (app *application) addDefaultData(td *templateData, r *http.Request) *templateData {
-	if td == nil {
-		td = &templateData{}
-	}
-	td.CurrentYear = time.Now().Year()
-	td.Flash = app.session.PopString(r, "flash")
-	td.IsAuthenticated = app.isAuthenticated(r)
-	td.CSRFToken = nosurf.Token(r)
-	return td
-}
-
-func (app *application) render(w http.ResponseWriter, r *http.Request, name string, td *templateData) {
-	ts, ok := app.templateCache[name]
-
-	if !ok {
-		app.serverError(w, fmt.Errorf("The template %s does not exist", name))
-		return
-	}
-	buf := new(bytes.Buffer)
-
-	err := ts.Execute(buf, app.addDefaultData(td, r))
+// shortURLToID converts a short URL to a numerical ID
+func shortURLToID(shortURL string) (int, error) {
+	fmt.Printf("Input string: %s\n", shortURL)
+	matched, err := regexp.MatchString(`^[a-zA-Z0-9]+$`, shortURL)
+	fmt.Printf("%s matched: %v\n", shortURL, matched)
 	if err != nil {
-		app.serverError(w, err)
-		return
+		return -1, err
 	}
-	buf.WriteTo(w)
-}
-
-// The serverError helper writes an error message and stack trace to the errorLog,
-// then sends a generic 500 Internal Server Error response to the user.
-func (app *application) serverError(w http.ResponseWriter, err error) {
-	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
-	app.errorLog.Output(2, trace)
-	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-}
-
-// The clientError helper sends a specific status code and corresponding description
-// to the user. We'll use this later in the book to send responses like 400 "Bad
-// Request" when there's a problem with the request that the user sent.
-func (app *application) clientError(w http.ResponseWriter, status int) {
-	http.Error(w, http.StatusText(status), status)
-}
-
-// For consistency, we'll also implement a notFound helper. This is simply a
-// convenience wrapper around clientError which sends a 404 Not Found response to
-// the user.
-func (app *application) notFound(w http.ResponseWriter) {
-	app.clientError(w, http.StatusNotFound)
-}
-
-func (app *application) isAuthenticated(r *http.Request) bool {
-	isAuthenticated, ok := r.Context().Value(contextKeyIsAuthenticated).(bool)
-	if !ok {
-		return false
+	if !matched {
+		return -1, errors.New("input cannot be empty")
 	}
-	return isAuthenticated
+	multipliers := make([]int, 1)
+	for i := 0; i < len(shortURL); i++ {
+		ch := shortURL[i]
+		if 'a' <= ch && ch <= 'z' {
+			multipliers = append(multipliers, int(ch-'a'+1))
+		} else if 'A' <= ch && ch <= 'Z' {
+			multipliers = append(multipliers, int(ch-'A'+27))
+		} else {
+			multipliers = append(multipliers, int(ch-'0'+53))
+		}
+	}
+	var ID int
+	n := len(multipliers)
+	for i := 0; i < n; i++ {
+		ID += int(math.Pow(62, float64(n-i-1))) * multipliers[i]
+	}
+	return ID, nil
+}
+
+// IDToShortURL converts an ID to a short URL
+func IDToShortURL(ID int) string {
+	return ""
 }

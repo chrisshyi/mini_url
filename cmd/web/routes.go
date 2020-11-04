@@ -3,15 +3,14 @@ package main
 import (
 	"net/http"
 
-	"github.com/bmizerany/pat"
+	"github.com/gorilla/mux"
 )
 
 func (app *application) routes() http.Handler {
 
-	mux := pat.New()
+	router := mux.NewRouter()
 
-	mux.Get("/:shortened_url", http.NotFoundHandler())
-	mux.Post("/", http.NotFoundHandler())
-
-	return mux
+	router.HandleFunc("/{shortURL}", app.redirectShortURL).Methods("GET")
+	router.HandleFunc("/", app.createNewShortURL).Methods("POST")
+	return router
 }
