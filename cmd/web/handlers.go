@@ -13,17 +13,6 @@ func ping(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("OK"))
 }
 
-func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	s, err := app.snippets.Latest()
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-	app.render(w, r, "home.page.tmpl", &templateData{
-		Snippets: s,
-	})
-}
-
 // Add a new createSnippetForm handler, which for now returns a placeholder response.
 func (app *application) createSnippetForm(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, "create.page.tmpl", &templateData{

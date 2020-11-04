@@ -4,15 +4,12 @@ import (
 	"crypto/tls"
 	"database/sql"
 	"flag"
-	"html/template"
 	"log"
 	"net/http"
 	"os"
 	"time"
 
 	"chrisshyi.net/snippetbox/pkg/models"
-	"chrisshyi.net/snippetbox/pkg/models/postgres"
-	"github.com/golangcollege/sessions"
 	_ "github.com/lib/pq"
 )
 
@@ -23,18 +20,7 @@ const contextKeyIsAuthenticated = contextKey("isAuthenticated")
 type application struct {
 	errorLog *log.Logger
 	infoLog  *log.Logger
-	session  *sessions.Session
-	snippets interface {
-		Insert(string, string, string) (int, error)
-		Get(int) (*models.Snippet, error)
-		Latest() ([]*models.Snippet, error)
-	}
-	users interface {
-		Insert(string, string, string) error
-		Authenticate(string, string) (int, error)
-		Get(int) (*models.User, error)
-	}
-	templateCache map[string]*template.Template
+	miniURL  *models.MiniURL
 }
 
 func openDB(dsn string) (*sql.DB, error) {
@@ -50,10 +36,8 @@ func openDB(dsn string) (*sql.DB, error) {
 
 func main() {
 	addr := flag.String("addr", ":4000", "HTTP network address")
-
-	defaultDSN := "postgres://snippetbox:admin@localhost:5432/snippetbox"
+	defaultDSN := "postgres://mini_url:mini_pass@localhost:5432/mini_url"
 	dsn := flag.String("dsn", defaultDSN, "The database connection string")
-	secret := flag.String("secret", "s6Ndh+pPbnzHbS*+9Pk8qGWhTzbpa@ge", "Secret key")
 	flag.Parse()
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
@@ -65,21 +49,10 @@ func main() {
 	}
 	defer db.Close()
 
-	templateCache, err := newTemplateCache("./ui/html/")
-	if err != nil {
-		errorLog.Fatal(err)
-	}
-
-	session := sessions.New([]byte(*secret))
-	session.Lifetime = 12 * time.Hour
-
 	app := &application{
-		errorLog:      errorLog,
-		infoLog:       infoLog,
-		session:       session,
-		snippets:      &postgres.SnippetModel{DB: db},
-		users:         &postgres.UserModel{DB: db},
-		templateCache: templateCache,
+		errorLog: errorLog,
+		infoLog:  infoLog,
+		miniURL:  &models.MiniURL{},
 	}
 
 	tlsConfig := &tls.Config{
