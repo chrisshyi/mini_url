@@ -47,7 +47,7 @@ func main() {
 	app := &application{
 		errorLog:     errorLog,
 		infoLog:      infoLog,
-		miniURLModel: &postgres.MiniURLModel{},
+		miniURLModel: &postgres.MiniURLModel{DB: db},
 	}
 
 	srv := &http.Server{

@@ -80,6 +80,10 @@ func (app *application) logErr(errorMsg string) {
 	app.errorLog.Output(2, trace)
 }
 
+func (app *application) logInfo(infoMsg string) {
+	app.errorLog.Output(2, infoMsg)
+}
+
 type malformedRequest struct {
 	status int
 	msg    string

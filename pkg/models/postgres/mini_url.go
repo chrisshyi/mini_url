@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"database/sql"
+	"fmt"
 
 	"chrisshyi.net/mini_url/pkg/models"
 )
@@ -13,6 +14,7 @@ type MiniURLModel struct {
 
 // GetByID retrieves a MiniURL by its ID field
 func (m *MiniURLModel) GetByID(ID int) (*models.MiniURL, error) {
+	fmt.Printf("Getting miniURL by ID %d\n", ID)
 	stmt := `SELECT id, url, visits FROM mini_urls WHERE id = $1`
 	miniURL := &models.MiniURL{}
 	err := m.DB.QueryRow(stmt, ID).Scan(&miniURL.ID, &miniURL.URL, &miniURL.Visits)
