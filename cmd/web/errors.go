@@ -5,6 +5,8 @@ import (
 )
 
 var (
+	// ErrInvalidShortURL represents an invalid short URL error
 	ErrInvalidShortURL = errors.New("Invalid short URL")
-	ErrInvalidID       = errors.New("Invalid ID")
+	// ErrInvalidID represents an invalid ID error
+	ErrInvalidID = errors.New("Invalid ID")
 )
