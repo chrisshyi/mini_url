@@ -1,0 +1,74 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a URL shortening service",
+        "title": "URL shortening API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:4000",
+    "basePath": "/",
+    "paths": {
+        "/": {
+            "post": {
+                "description": "Creates a new short URL",
+                "summary": "Creates a new short URL",
+                "parameters": [
+                    {
+                        "description": "The URL to shorten",
+                        "name": "shortURL",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.NewURL"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/main.ShortenedURL"
+                        }
+                    }
+                }
+            }
+        },
+        "/{shortURL}": {
+            "get": {
+                "description": "Redirects a short URL to its matching long URL",
+                "summary": "Redirects a short URL",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The short URL to redirect",
+                        "name": "shortURL",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "303": {}
+                }
+            }
+        }
+    },
+    "definitions": {
+        "main.NewURL": {
+            "type": "object",
+            "properties": {
+                "URL": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.ShortenedURL": {
+            "type": "object",
+            "properties": {
+                "URL": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

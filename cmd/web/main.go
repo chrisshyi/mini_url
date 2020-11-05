@@ -29,6 +29,11 @@ func openDB(dsn string) (*sql.DB, error) {
 	return db, nil
 }
 
+// @title URL shortening API
+// @version 1.0
+// @description This is a URL shortening service
+// @host localhost:4000
+// @BasePath /
 func main() {
 	addr := flag.String("addr", ":4000", "HTTP network address")
 	defaultDSN := "postgres://mini_url:mini_pass@localhost:5432/mini_url"

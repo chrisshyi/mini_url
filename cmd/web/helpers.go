@@ -81,7 +81,7 @@ func (app *application) logErr(errorMsg string) {
 }
 
 func (app *application) logInfo(infoMsg string) {
-	app.errorLog.Output(2, infoMsg)
+	app.infoLog.Output(2, infoMsg)
 }
 
 type malformedRequest struct {

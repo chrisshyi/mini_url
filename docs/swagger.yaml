@@ -1,0 +1,48 @@
+basePath: /
+definitions:
+  main.NewURL:
+    properties:
+      URL:
+        type: string
+    type: object
+  main.ShortenedURL:
+    properties:
+      URL:
+        type: string
+    type: object
+host: localhost:4000
+info:
+  contact: {}
+  description: This is a URL shortening service
+  title: URL shortening API
+  version: "1.0"
+paths:
+  /:
+    post:
+      description: Creates a new short URL
+      parameters:
+      - description: The URL to shorten
+        in: body
+        name: shortURL
+        required: true
+        schema:
+          $ref: '#/definitions/main.NewURL'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/main.ShortenedURL'
+      summary: Creates a new short URL
+  /{shortURL}:
+    get:
+      description: Redirects a short URL to its matching long URL
+      parameters:
+      - description: The short URL to redirect
+        in: path
+        name: shortURL
+        required: true
+        type: string
+      responses:
+        "303": {}
+      summary: Redirects a short URL
+swagger: "2.0"
