@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"database/sql"
-	"errors"
 
 	"chrisshyi.net/mini_url/pkg/models"
 )
@@ -12,11 +11,10 @@ type MiniURLModel struct {
 	DB *sql.DB
 }
 
-
 // GetByID retrieves a MiniURL by its ID field
-func (m *MiniURLModel) GetByID(ID int) (models.MiniURL, error) {
+func (m *MiniURLModel) GetByID(ID int) (*models.MiniURL, error) {
 	stmt := `SELECT id, url, visits FROM mini_urls WHERE id = $1`
-	var miniURL models.MiniURL{}
+	miniURL := &models.MiniURL{}
 	err := m.DB.QueryRow(stmt, ID).Scan(&miniURL.ID, &miniURL.URL, &miniURL.Visits)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -28,14 +26,11 @@ func (m *MiniURLModel) GetByID(ID int) (models.MiniURL, error) {
 }
 
 // GetByURL retrieves a MiniURL by its url field
-func (m *MiniURLModel) GetByURL(URL string) (models.MiniURL, error) {
+func (m *MiniURLModel) GetByURL(URL string) (*models.MiniURL, error) {
 	stmt := `SELECT id, url, visits FROM mini_urls WHERE url = $1`
-	var miniURL models.MiniURL{}
+	miniURL := &models.MiniURL{}
 	err := m.DB.QueryRow(stmt, URL).Scan(&miniURL.ID, &miniURL.URL, &miniURL.Visits)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, nil
-		}
 		return nil, err
 	}
 	return miniURL, nil

@@ -8,14 +8,14 @@ import (
 	"os"
 	"time"
 
-	"chrisshyi.net/mini_url/pkg/models"
+	"chrisshyi.net/mini_url/pkg/models/postgres"
 	_ "github.com/lib/pq"
 )
 
 type application struct {
-	errorLog *log.Logger
-	infoLog  *log.Logger
-	miniURL  *models.MiniURL
+	errorLog     *log.Logger
+	infoLog      *log.Logger
+	miniURLModel *postgres.MiniURLModel
 }
 
 func openDB(dsn string) (*sql.DB, error) {
@@ -45,9 +45,9 @@ func main() {
 	defer db.Close()
 
 	app := &application{
-		errorLog: errorLog,
-		infoLog:  infoLog,
-		miniURL:  &models.MiniURL{},
+		errorLog:     errorLog,
+		infoLog:      infoLog,
+		miniURLModel: &postgres.MiniURLModel{},
 	}
 
 	srv := &http.Server{
