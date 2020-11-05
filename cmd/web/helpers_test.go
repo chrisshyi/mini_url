@@ -12,10 +12,12 @@ func TestShortURLToID(t *testing.T) {
 		wantErr  error
 	}{
 		{"", -1, errors.New("input cannot be empty")},
-		{"a", 1, nil},
-		{"aa", 63, nil},
+		{"a", -1, errors.New("cannot contain all a's")},
+		{"aa", -1, errors.New("cannot contain all a's")},
+		{"aaaaaaaa", -1, errors.New("cannot contain all a's")},
 		{"你qwe好", -1, errors.New("input cannot contain non-alphanumerics")},
-		{"0a", 3287, nil},
+		{"0a", 3224, nil},
+		{"bb", 63, nil},
 	}
 
 	for _, test := range tests {
