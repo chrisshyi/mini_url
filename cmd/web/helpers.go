@@ -2,14 +2,13 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"math"
 	"regexp"
+	"strings"
 )
 
 // shortURLToID converts a short URL to a numerical ID
 func shortURLToID(shortURL string) (int, error) {
-	fmt.Printf("Input string: %s\n", shortURL)
 	consecutiveAs, err := regexp.MatchString(`^a+$`, shortURL)
 	if err != nil {
 		return -1, err
@@ -18,7 +17,6 @@ func shortURLToID(shortURL string) (int, error) {
 		return -1, errors.New("shortURL cannot contain all a's")
 	}
 	matched, err := regexp.MatchString(`^[a-zA-Z0-9]+$`, shortURL)
-	fmt.Printf("%s matched: %v\n", shortURL, matched)
 	if err != nil {
 		return -1, err
 	}
@@ -56,6 +54,16 @@ func IDToShortURL(ID int) (string, error) {
 		digits = append(digits, rem)
 		num = num / 62
 	}
-	// TODO: finish this!
-	return "", nil
+	var sb strings.Builder
+	for i := len(digits) - 1; i > -1; i-- {
+		digit := digits[i]
+		if digit < 26 {
+			sb.WriteByte('a' + byte(digit))
+		} else if digit < 52 {
+			sb.WriteByte('A' + byte(digit-26))
+		} else {
+			sb.WriteByte('0' + byte(digit-52))
+		}
+	}
+	return sb.String(), nil
 }

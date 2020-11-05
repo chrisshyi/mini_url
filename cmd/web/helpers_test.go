@@ -33,3 +33,33 @@ func TestShortURLToID(t *testing.T) {
 		}
 	}
 }
+
+func TestIDToShortURL(t *testing.T) {
+	tests := []struct {
+		ID           int
+		wantShortURL string
+		wantErr      error
+	}{
+		{-1, "", errors.New("input cannot be less than 1")},
+		{0, "", errors.New("input cannot be less than 1")},
+		{3224, "0a", nil},
+		{63, "bb", nil},
+		{63210, "qBG", nil},
+		{1, "b", nil},
+		{3843, "99", nil},
+	}
+
+	for _, test := range tests {
+		shortURL, err := IDToShortURL(test.ID)
+		if test.wantErr != nil {
+			if err == nil {
+				t.Errorf("Expected error %s", test.wantErr)
+			}
+		} else {
+			if shortURL != test.wantShortURL {
+				t.Errorf("Expected shortURL %s but got %s", test.wantShortURL, shortURL)
+			}
+		}
+	}
+
+}
