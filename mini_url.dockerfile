@@ -1,4 +1,4 @@
-FROM golang:1.15.3-alpine
+FROM golang:1.15.3-buster AS builder
 
 # Set necessary environmet variables needed for our image
 ENV GO111MODULE=on \
@@ -13,16 +13,22 @@ WORKDIR /build
 COPY go.mod .
 COPY go.sum .
 RUN go mod download
-RUN swagger 
 
 # Copy the code into the container
+ADD ./swag-1.6.9.tar.gz ./
 COPY . .
-
 # Build the application
+
+RUN ls
+RUN ./swag init -g ./cmd/web/main.go
 RUN go build -o app ./cmd/web
 
 # Export necessary port
 EXPOSE 4000
 
-# Command to run when starting the container
-CMD ["/build/app"]
+FROM scratch
+
+COPY --from=builder /build/app /
+COPY --from=builder /build/docs/* /
+
+CMD ["/app"]
