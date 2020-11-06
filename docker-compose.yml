@@ -1,0 +1,13 @@
+version: "3.8"
+services:
+  app:
+    image: chrisshi/mini_url:mini_url-0.1-mini
+    ports:
+      - "4000:4000"
+    environment:
+      - DB_HOST=postgres
+      - DB_USER=mini_url
+      - DB_PASS=mini_pass
+      - DB_NAME=mini_url
+  postgres:
+    image: chrisshi/mini_url:postgres-0.1
