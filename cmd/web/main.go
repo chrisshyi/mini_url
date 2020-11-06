@@ -47,7 +47,7 @@ func openDB(dsn string) (*sql.DB, error) {
 			break
 		}
 		infoLog.Output(1, fmt.Sprintf("Could not connect to DB, sleeping..."))
-		time.Sleep(15 * time.Second)
+		time.Sleep(5 * time.Second)
 	}
 	if !dbReady {
 		return nil, err
