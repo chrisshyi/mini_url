@@ -9,5 +9,7 @@ services:
       - DB_USER=mini_url
       - DB_PASS=mini_pass
       - DB_NAME=mini_url
+    depends_on:
+      - "postgres"
   postgres:
     image: chrisshi/mini_url:postgres-0.1

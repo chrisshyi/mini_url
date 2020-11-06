@@ -33,11 +33,23 @@ type config struct {
 }
 
 func openDB(dsn string) (*sql.DB, error) {
-	db, err := sql.Open("postgres", dsn)
+	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	db, err := sql.Open("postgres", dsn+"?sslmode=disable")
 	if err != nil {
 		return nil, err
 	}
-	if err = db.Ping(); err != nil {
+	dbReady := false
+	for i := 0; i < 3; i++ {
+		infoLog.Output(1, fmt.Sprintf("Connecting to DB, attempt: %d", i+1))
+		err = db.Ping()
+		if err == nil {
+			dbReady = true
+			break
+		}
+		infoLog.Output(1, fmt.Sprintf("Could not connect to DB, sleeping..."))
+		time.Sleep(15 * time.Second)
+	}
+	if !dbReady {
 		return nil, err
 	}
 	return db, nil
@@ -84,6 +96,7 @@ func main() {
 
 	db, err := openDB(dsn)
 	if err != nil {
+		errorLog.Output(2, "Cannot connect to database")
 		errorLog.Fatal(err)
 	}
 	defer db.Close()
