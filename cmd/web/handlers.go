@@ -1,12 +1,12 @@
 package main
 
 import (
-	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 
+	"chrisshyi.net/mini_url/pkg/models"
 	"github.com/gorilla/mux"
 )
 
@@ -43,6 +43,11 @@ func (app *application) redirectShortURL(w http.ResponseWriter, r *http.Request)
 	}
 	miniURL, err := app.miniURLModel.GetByID(ID)
 	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.logErr(fmt.Sprintf("URL matching short URL %s not found", shortURL))
+			http.Error(w, "short URL does not exist", http.StatusNotFound)
+			return
+		}
 		app.logErr(err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
@@ -72,7 +77,7 @@ func (app *application) createNewShortURL(w http.ResponseWriter, r *http.Request
 	}
 	miniURL, err := app.miniURLModel.GetByURL(newURL.URL)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, models.ErrNoRecord) {
 			app.logInfo(fmt.Sprintf("No rows found for URL %s", newURL.URL))
 			app.logInfo(fmt.Sprintf("Creating new short URL for URL %s", newURL.URL))
 		} else {
@@ -90,6 +95,7 @@ func (app *application) createNewShortURL(w http.ResponseWriter, r *http.Request
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
+		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(ShortenedURL{
 			URL: shortenedURL,
 		})

@@ -20,7 +20,7 @@ func (m *MiniURLModel) GetByID(ID int) (*models.MiniURL, error) {
 	err := m.DB.QueryRow(stmt, ID).Scan(&miniURL.ID, &miniURL.URL, &miniURL.Visits)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, nil
+			return nil, models.ErrNoRecord
 		}
 		return nil, err
 	}
@@ -33,6 +33,9 @@ func (m *MiniURLModel) GetByURL(URL string) (*models.MiniURL, error) {
 	miniURL := &models.MiniURL{}
 	err := m.DB.QueryRow(stmt, URL).Scan(&miniURL.ID, &miniURL.URL, &miniURL.Visits)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, models.ErrNoRecord
+		}
 		return nil, err
 	}
 	return miniURL, nil

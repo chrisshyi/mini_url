@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"chrisshyi.net/mini_url/pkg/models"
 	"chrisshyi.net/mini_url/pkg/models/postgres"
 	_ "github.com/lib/pq"
 )
@@ -15,7 +16,11 @@ import (
 type application struct {
 	errorLog     *log.Logger
 	infoLog      *log.Logger
-	miniURLModel *postgres.MiniURLModel
+	miniURLModel interface {
+		GetByID(int) (*models.MiniURL, error)
+		GetByURL(string) (*models.MiniURL, error)
+		Insert(string) (int, error)
+	}
 }
 
 type config struct {

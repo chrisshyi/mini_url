@@ -28,7 +28,7 @@ func shortURLToID(shortURL string) (int, error) {
 		return -1, err
 	}
 	if !matched {
-		return -1, errors.New("shortURL cannot be empty")
+		return -1, ErrInvalidShortURL
 	}
 	multipliers := make([]int, 1)
 	for i := 0; i < len(shortURL); i++ {
