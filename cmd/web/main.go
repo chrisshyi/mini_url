@@ -2,7 +2,7 @@ package main
 
 import (
 	"database/sql"
-	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -18,6 +18,15 @@ type application struct {
 	miniURLModel *postgres.MiniURLModel
 }
 
+type config struct {
+	addr   *string
+	dbHost *string
+	dbPort *string
+	dbUser *string
+	dbPass *string
+	dbName *string
+}
+
 func openDB(dsn string) (*sql.DB, error) {
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
@@ -29,21 +38,46 @@ func openDB(dsn string) (*sql.DB, error) {
 	return db, nil
 }
 
+func readEnvOrDefault(key, defaultVal string) *string {
+	envVal, exists := os.LookupEnv(key)
+	if !exists {
+		return &defaultVal
+	}
+	return &envVal
+}
+
+func appConfigSetup() config {
+	appConfig := config{
+		addr:   readEnvOrDefault("APP_ADDR", ":4000"),
+		dbHost: readEnvOrDefault("DB_HOST", "localhost"),
+		dbPort: readEnvOrDefault("DB_PORT", "5432"),
+		dbUser: readEnvOrDefault("DB_USER", "mini_url"),
+		dbPass: readEnvOrDefault("DB_PASS", "mini_pass"),
+		dbName: readEnvOrDefault("DB_NAME", "mini_url"),
+	}
+	return appConfig
+}
+
 // @title URL shortening API
 // @version 1.0
 // @description This is a URL shortening service
 // @host localhost:4000
 // @BasePath /
 func main() {
-	addr := flag.String("addr", ":4000", "HTTP network address")
-	defaultDSN := "postgres://mini_url:mini_pass@localhost:5432/mini_url"
-	dsn := flag.String("dsn", defaultDSN, "The database connection string")
-	flag.Parse()
+	appConfig := appConfigSetup()
+	dsn := fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s",
+		*appConfig.dbUser,
+		*appConfig.dbPass,
+		*appConfig.dbHost,
+		*appConfig.dbPort,
+		*appConfig.dbName,
+	)
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Llongfile)
 
-	db, err := openDB(*dsn)
+	db, err := openDB(dsn)
 	if err != nil {
 		errorLog.Fatal(err)
 	}
@@ -56,7 +90,7 @@ func main() {
 	}
 
 	srv := &http.Server{
-		Addr:         *addr,
+		Addr:         *appConfig.addr,
 		ErrorLog:     errorLog,
 		Handler:      app.routes(),
 		IdleTimeout:  time.Minute,
@@ -64,7 +98,7 @@ func main() {
 		WriteTimeout: 5 * time.Second,
 	}
 
-	infoLog.Printf("Starting server on %s", *addr)
+	infoLog.Printf("Starting server on %s", *appConfig.addr)
 	err = srv.ListenAndServe()
 	errorLog.Fatal(err)
 }
