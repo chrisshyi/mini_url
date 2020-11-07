@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   app:
-    image: chrisshi/mini_url:mini_url-0.1-mini
+    image: chrisshi/mini_url:mini_url-0.2-mini
     ports:
       - "4000:4000"
     environment:
