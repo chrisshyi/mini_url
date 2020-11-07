@@ -75,6 +75,18 @@ func (app *application) createNewShortURL(w http.ResponseWriter, r *http.Request
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	matched, err := hasHTTPPrefix(newURL.URL)
+	if err != nil {
+		app.logErr(fmt.Sprintf("createNewShortURL(): %s", err.Error()))
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if !matched {
+		errMsg := fmt.Sprintf("URL %s missing http:// prefix", newURL.URL)
+		app.logErr(errMsg)
+		http.Error(w, errMsg, http.StatusBadRequest)
+		return
+	}
 	miniURL, err := app.miniURLModel.GetByURL(newURL.URL)
 	if err != nil {
 		if errors.Is(err, models.ErrNoRecord) {

@@ -84,6 +84,14 @@ func (app *application) logInfo(infoMsg string) {
 	app.infoLog.Output(2, infoMsg)
 }
 
+func hasHTTPPrefix(URL string) (bool, error) {
+	matched, err := regexp.MatchString(`^https?://.*`, URL)
+	if err != nil {
+		return false, err
+	}
+	return matched, nil
+}
+
 type malformedRequest struct {
 	status int
 	msg    string
