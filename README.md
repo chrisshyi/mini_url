@@ -6,7 +6,7 @@ To start the application, run the command `docker-compose up -d`. The applicatio
 
 #### Shortening a URL
 
-To shorten a URL, send a `POST http://localhost:4000/`, the URL you get back is the shortened URL
+To shorten a URL, send a `POST http://localhost:4000/` with request body (JSON) `{"URL": "http://www.example.com"}`, the URL you get back is the shortened URL
 
 #### Using a Shortened URL
 
