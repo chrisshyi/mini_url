@@ -21,7 +21,7 @@ func shortURLToID(shortURL string) (int, error) {
 		return -1, err
 	}
 	if consecutiveAs {
-		return -1, errors.New("shortURL cannot contain all a's")
+		return -1, ErrInvalidShortURL
 	}
 	matched, err := regexp.MatchString(`^[a-zA-Z0-9]+$`, shortURL)
 	if err != nil {
